@@ -326,7 +326,7 @@ bed_intersect_loc_motion_plot = bed_intersect_loc_motion2p.collectFile(newLine: 
  */
 process tag_bed_mean_files {
 
-    publishDir = [path: "results${tag_res}/inters_files_to_distro", mode: 'copy']
+    //publishDir = [path: "results${tag_res}/inters_files_to_distro", mode: 'copy']
 
   	input: 
   	set file ('bed_file'), val (strain), val (pheno_feature), val (direction), val (strain_beh_dir), val (exp_group) from bed_intersect_loc_motion_plot
