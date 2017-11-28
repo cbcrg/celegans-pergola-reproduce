@@ -1,6 +1,6 @@
-# celegans-Pergola-Reproduce.nf
+# celegans-pergola-reproduce.nf
 
-![CircleCI status](https://circleci.com/gh/JoseEspinosa/celegans-pergola-reproduce.png?style=shield)
+![CircleCI status](https://circleci.com/gh/cbcrg/celegans-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
 
 This repository contains the software, scripts and data to reproduce the results corresponding to the *C.elegans* data of the Pergola paper.
@@ -8,8 +8,8 @@ This repository contains the software, scripts and data to reproduce the results
 ## Clone the repository
 
 ```bash
-git clone --recursive https://github.com/JoseEspinosa/pergola-paper-reproduce.git
-cd pergola-paper-reproduce/celegans_n2_unc16
+git clone --recursive https://github.com/cbcrg/celegans-pergola-reproduce.git
+cd celegans-pergola-reproduce
 ```
 
 ## Data
@@ -85,7 +85,7 @@ docker pull pergola/pergola@sha256:f7208e45e761dc0cfd3e3915237eb1a96eead6dfa9c8f
 Once data is downloaded, it is possible to reproduce all the paper results using this command:
 
 ```bash
-NXF_VER=0.24.3 nextflow run celegans-pergola-reproduce.nf \
+NXF_VER=0.26.1 nextflow run celegans-pergola-reproduce.nf \
     --strain1_trackings 'data/unc_16/*.mat' \
     --strain2_trackings 'data/N2/*.mat' \
     --mappings_speed 'data/mappings/worms_speed2p.txt' \
@@ -116,17 +116,17 @@ ant -f build.xml
 Go to the menu **Genomes --> Create .genome File ..**
 Select the fasta file created in the ``results_IGV`` folder and click on OK and save the genome in your system as shown in the snapshot below:
 
-<img src="/celegans_n2_unc16/images/create_genome.png" alt="snapshot create-genome" style="width: 100%;"/>
+<img src="/images/create_genome.png" alt="snapshot create-genome" style="width: 100%;"/>
 
 Open the tracks in ``.bedGraph`` format from the ``results_IGV`` folder from the menu **File --> Load from File...**
 
 Select all the tracks clicking on their name and right click to display options, and select the options as in the snaphot below:
 
-<img src="/celegans_n2_unc16/images/track_options.png" alt="snapshot create-genome" style="width: 50%;"/>
+<img src="/images/track_options.png" alt="snapshot create-genome" style="width: 50%;"/>
 
 Finally click on the same menu the **Set Heatmap Scale** option and select the configure it as in the image:
 
-<img src="/celegans_n2_unc16/images/heatmap_options.png" alt="snapshot create-genome" style="width: 100%;"/>
+<img src="/images/heatmap_options.png" alt="snapshot create-genome" style="width: 100%;"/>
 
 #### Heatmap
 We produce a heatmap reproducing the paper figure using the [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) R package.

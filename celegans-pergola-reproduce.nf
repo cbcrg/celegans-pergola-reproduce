@@ -24,7 +24,7 @@
  * Jose Espinosa-Carrasco. CB/CSN-CRG. April 2016
  *
  * Script to reproduce Pergola paper figures using C.elegans trackings downloaded from the
- * Wormbehavior DB (http://wormbehavior.mrc-lmb.cam.ac.uk/). 
+ * Wormbehavior DB (http://wormbehavior.mrc-lmb.cam.ac.uk/) moved to (http://movement.openworm.org/)
  * 
  */    
 
