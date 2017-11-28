@@ -88,9 +88,6 @@ names (argsL) <- argsDF$V1
 # ## Loading libraries
 library('Sushi')
 
-## bedgraph behavioral measures files
-# path2bedg_files <- "/Users/jespinosa/git/pergola-paper-reproduce/celegans_n2_unc16/results/results_bedgr1/"
-# path2bedg_files<- "/Users/jespinosa/scratch/b4/a5db1241fd345a668a8e8234ee595b/results_bedgr1"
 #############################
 ## Read bedGraph files
 bedg_files <- list.files(path=path2bedg_files, pattern="^bedg*", full.names=TRUE)
@@ -107,7 +104,7 @@ unite_scale <- function (v, min=-400, max=400) {
     return ((v - 0) / (max - 0))
 }
 
-data_bedgraph_variable <- lapply(bedg_files, function (bedg) { 
+data_bedgraph_variable <- lapply(bedg_files, function (bedg) {
     
     name_id <- gsub("bedg.str1.", "", gsub(".bedGraph", "", basename(bedg)))  
     bedg_tbl <- read.csv(file=bedg, header=FALSE, sep="\t", stringsAsFactors=FALSE)
@@ -122,12 +119,12 @@ chromstart       = 0
 # chromend         = 29002
 # chromend         = 29002 #longest record
 chromend         = 23000 #almost all records reach this point
-height_tr <- length(data_bedgraph_variable) * 0.5
+height_tr <- max(length(data_bedgraph_variable) * 0.5, 10)
 
 {
     if (image_format == 'tiff' | image_format == 'tif') {
         # tiff(paste("sushi_var", ".", image_format, sep="") , height=10, width=20, units="cm", res=300)
-        tiff(paste("sushi_var", ".", image_format, sep="") , height=height_tr, width=30, units="cm", res=300)
+        tiff(paste("sushi_var", ".", image_format, sep="") , height=20, width=30, units="cm", res=300)
         size_lab <- 0.3
     }
     else if (image_format == 'pdf') {        
@@ -151,6 +148,7 @@ split.screen(c(length(data_bedgraph_variable), 1))
 screen(1)
 
 par(mar=c(0.1,1,2,0.1))
+# par(mar=c(0,0,0,0))
 
 i=1
 j=1
@@ -158,6 +156,7 @@ j=1
 for (bedg_i in seq_along(data_bedgraph_variable)) {
     screen( i )    
     par(mar=c(0.1, 2, 0.1, 2))
+    # par(mar=c(0, 0, 0, 0))
     plotBed(data_bedgraph_variable[[bedg_i]], chrom, chromstart, chromend, 
             row='supplied',  
             color= data_bedgraph_variable[[bedg_i]]$color)

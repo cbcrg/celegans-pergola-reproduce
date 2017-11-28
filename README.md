@@ -1,5 +1,8 @@
 # celegans-Pergola-Reproduce.nf
 
+![CircleCI status](https://circleci.com/gh/JoseEspinosa/celegans-pergola-reproduce.png?style=shield)
+[![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
+
 This repository contains the software, scripts and data to reproduce the results corresponding to the *C.elegans* data of the Pergola paper.
 
 ## Clone the repository
