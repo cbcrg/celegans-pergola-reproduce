@@ -13,19 +13,23 @@ cd celegans-pergola-reproduce
 ```
 
 ## Data
-Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball.
+
+Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1067834.svg)](https://doi.org/10.5281/zenodo.1067834).
 
 Data can be downloaded and uncompressed using the following command:
 
 ```bash
 mkdir data
-wget -O- https://zenodo.org/record/582343/files/celegans_dataset.tar.gz | tar xz -C data
+wget -O- https://zenodo.org/record/1067834/files/celegans_dataset.tar.gz | tar xz -C data
 ```
 
 #### Original Data Sources
-If you prefer, you can download the data from the original sources:
+
+~~ If you prefer, you can download the data from the original sources:
 * N2 *C.elegans* strain (control) behavioral recordings: [N2](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=300)
-* unc-16 *C.elegans* strain behavioral recordings: [unc-16](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=1)
+* unc-16 *C.elegans* strain behavioral recordings: [unc-16](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=1)~~
+
+The database has been migrated and the data can now be accessed at this [link](http://movement.openworm.org/) 
 
 **Note**: Only a subset of the N2 files available on the database, those recorded within a 2-week window centered around the unc-16 mutant strain, have been used for the analysis. The detailed list of files is:
 
@@ -72,7 +76,7 @@ N2 on food_2009_12_09__10_32_45___7___1_features.mat
 N2 on food_2009_12_09__10_33_20__1_features.mat
 ```
 
-If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](../README.md)
+If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](https://github.com/cbcrg/pergola-reproduce/blob/master/README.md)
 
 ## Pull docker image
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
@@ -94,7 +98,18 @@ NXF_VER=0.26.1 nextflow run celegans-pergola-reproduce.nf \
     -with-docker
 ```	
 
-## Visualization
+##  Results
+
+The nextflow pipeline produces a results folder containing:
+
+* Three plots comparing the distribution of *unc-16* and *N2* mid body speed when moving forward, backward and when paused, respectively.  
+* A figure created using [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) depicting in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
+* A figure created using [Sushi](https://bioconductor.org/packages/release/bioc/html/Sushi.html) rendering in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
+* A folder containing all the necessary files to compare mid body speed of the two strains in a heatmap using [IGV](http://software.broadinstitute.org/software/igv/). Data is separated in folders corresponding to each mouse group.
+See [below](IGV-visualization) for a detailed explanation of how to load the data on IGV.
+
+
+## IGV visualization
 You can use the version we adapted of the [Integrative Genomics Viewer](http://software.broadinstitute.org/software/igv/) (or the original one) to browse the resulting data (as we did for the paper).
 However IGV does not allow extended programatic access to set the graphical options, hence our script produces a heatmap reproducing the paper figure. This file can be found inside the ``heatmap`` results folder.
 
@@ -114,22 +129,19 @@ ant -f build.xml
 ```
 
 Go to the menu **Genomes --> Create .genome File ..**
-Select the fasta file created in the ``results_IGV`` folder and click on OK and save the genome in your system as shown in the snapshot below:
+Select the fasta file created in the ``results/igv`` folder and click on OK and save the genome in your system as shown in the snapshot below:
 
 <img src="/images/create_genome.png" alt="snapshot create-genome" style="width: 100%;"/>
 
-Open the tracks in ``.bedGraph`` format from the ``results_IGV`` folder from the menu **File --> Load from File...**
+Open the tracks in ``.bedGraph`` format from the ``/results/igv/results_bedgr1_igv`` folder from the menu **File --> Load from File...**
 
 Select all the tracks clicking on their name and right click to display options, and select the options as in the snaphot below:
 
 <img src="/images/track_options.png" alt="snapshot create-genome" style="width: 50%;"/>
 
+Do the same with the data of the *N2* strain placed inside ``/results/igv/results_bedgr2_igv``. 
+ 
 Finally click on the same menu the **Set Heatmap Scale** option and select the configure it as in the image:
 
 <img src="/images/heatmap_options.png" alt="snapshot create-genome" style="width: 100%;"/>
-
-#### Heatmap
-We produce a heatmap reproducing the paper figure using the [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) R package.
-
-## Density plots
-The density plots are stored in the ``plots_distro`` folder. 
+ 
