@@ -25,7 +25,7 @@ wget -O- https://zenodo.org/record/1067834/files/celegans_dataset.tar.gz | tar x
 
 #### Original Data Sources
 
-~~ If you prefer, you can download the data from the original sources:
+~~If you prefer, you can download the data from the original sources:
 * N2 *C.elegans* strain (control) behavioral recordings: [N2](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=300)
 * unc-16 *C.elegans* strain behavioral recordings: [unc-16](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=1)~~
 
