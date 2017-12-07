@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 #  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
 #  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
 #
@@ -21,123 +22,95 @@
 #############################################################################
 ### Reads mat lab files downloaded from the Wormbehavior DB               ###
 ### (http://wormbehavior.mrc-lmb.cam.ac.uk/). Each file contains several  ###
-### features extracted from C.elegans video trackings.                    ### 
-### Read intervals of direction followed by the worn in space             ###
+### features extracted from C.elegans video trackings.                    ###
+### Read features are foraging_speed, crawling, tail_motion and speeds    ###
+### measured on different body parts                                      ###
 #############################################################################
 
 # Loading libraries
 from argparse import ArgumentParser
-from scipy.io  import loadmat
 import h5py
-from time import strptime
-from calendar import timegm
-from sys import stderr, exit
+from sys import stderr
 import numpy as np
 from csv import writer
 from os.path import basename
 
 parser = ArgumentParser(description='File input arguments')
-parser.add_argument('-i','--input', help='Worms data hdf5 format matlab file', required=True)
+parser.add_argument('-i', '--input', help='Worms data hdf5 format matlab file', required=True)
 
 args = parser.parse_args()
 
-print ("Input file: %s" % args.input)
 print >> stderr, "Input file: %s" % args.input
 
 # Input files
-input_file =  args.input
+input_file = args.input
+
 file_name = basename(input_file).split('.')[0]
-file_name = file_name.replace (" ", "_")
+# file_name = file_name.replace(" ", "_")
+# file_name = file_name.replace('(', "")
+# file_name = file_name.replace(')', "")
 
-f = h5py.File(input_file)
+f = h5py.File(input_file, 'r')
+time_series = f['features_timeseries']
 
-### INFO
-# sex_r = f['info']['experiment']['worm']['sex']
-# sex = str(''.join(unichr(c) for c in sex_r))
-#
-# habituation_r = f['info']['experiment']['worm']['habituation']
-# habituation = str(''.join(unichr(c) for c in habituation_r))
-#
-# # annotations (empty)
-# annotations_r = f['info']['experiment']['environment']['annotations']
-# annotations = str(''.join(c.astype(str) for c in annotations_r))
-#
-# # info/experiment/worm/genotype
-# genotype_r = f['info']['experiment']['worm']['genotype'] #type u2
-# genotype = str(''.join(unichr(c) for c in genotype_r))
+## motion stuff
+f_b = open(file_name + "." + "backward" + ".csv",'wb')
+f_p = open(file_name + "." + "paused" + ".csv",'wb')
+f_f = open(file_name + "." + "forward" + ".csv",'wb')
 
-# /info/experiment/worm/strain
-strain_r = f['info']['experiment']['worm']['strain']
-strain = str(''.join(unichr(c) for c in strain_r))
+writer_out_b = writer(f_b, dialect='excel-tab')
+writer_out_p = writer(f_p, dialect='excel-tab')
+writer_out_f = writer(f_f, dialect='excel-tab')
 
-# age worm
-# /info/experiment/worm/age
-# age_r = f['info']['experiment']['worm']['age'] #type u2
-# age = str(''.join(unichr(c) for c in age_r))
-#
-# # /info/experiment/environment/food
-# food_r = f['info']['experiment']['environment']['food'] #type u2
-# food = str(''.join(unichr(c) for c in food_r))
-#
-# # /info/experiment/environment/timestamp
-# timestamp_r = f['info']['experiment']['environment']['timestamp'] #type u2
-# timestamp = str(''.join(unichr(c) for c in timestamp_r))
-#
-# # HH:MM:SS.mmmmmm
-# my_date_object = strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
-# unix_time = timegm(my_date_object) # utc based # correct!!!
-#
-# # /info/video/length/time
-# time_recorded_r = f['info']['video']['length']['time']
-# time_recorded = time_recorded_r[0][0]
+writer_out_b.writerow(['frame_start', 'frame_end', 'value', 'direction'])
+writer_out_p.writerow(['frame_start', 'frame_end', 'value', 'direction'])
+writer_out_f.writerow(['frame_start', 'frame_end', 'value', 'direction'])
 
-# /info/video/length/frames
-frames_r = f['info']['video']['length']['frames']
-frames = frames_r[0][0] 
+def motion_state_f(x):
+    return {
+        -1:'backward',
+        1: 'forward',
+        0: 'paused',
+        'nan': 'nan'
+    }[x]
 
-fps_r = f['info']['video']['resolution']['fps']
-fps = fps_r[0][0]
+motion_index = 3
+p_motion_state = "first"
 
-motion_keys = ['forward', 'backward', 'paused']
-
-def list_from_ref (refs_obj):
+for frame in range(0, len(time_series)):
     list_v = list()
-    
-    for r in refs_obj:
-        list_v.append(f[r[0]][0][0])   
+    list_v.extend([frame, frame + 1])
 
-    return (list_v)
-
-for motion_k in sorted(motion_keys):
     try:
-        start_r = f['worm']['locomotion']['motion'][motion_k]['frames']['start']
-        end_r = f['worm']['locomotion']['motion'][motion_k]['frames']['end']
+        motion_integer = time_series[frame][motion_index]
     except KeyError:
-        raise KeyError ("Motion field %s is corrupted and can not be retrieved from hdf5 file"
-                        % (motion_k))
-    
-    start = list_from_ref (start_r)
-    end = list_from_ref (end_r)
+        raise KeyError("Motion field %s is corrupted and can not be retrieved from hdf5 file"
+                       % (frame))
 
-    fh = open(file_name + "." + motion_k + ".csv",'wb')
+    if np.isnan(motion_integer):
+        motion_state = p_motion_state
+    else:
+        motion_state = motion_state_f(motion_integer)
+    # motion_state = motion_state_f(time_series[frame][motion_index])
 
-    # fh.write("#genotype;%s\n" % genotype)
-    fh.write("#strain;%s\n" % strain)
-    # fh.write("#age;%s\n" % age)
-    # fh.write("#habituation;%s\n" % habituation)
-    # fh.write("#food;%s\n" % food)
-    # fh.write("#unix_time;%s\n" % unix_time)
-    # fh.write("#time_recorded;%s\n" % time_recorded)
-    fh.write("#frames;%s\n" % frames)
-    fh.write("#fps;%s\n" % fps)
-    # fh.write("#annotations;%s\n" % annotations)
+    if motion_state == "first":
+        start_frame = frame
 
-    writer_out = writer(fh, dialect = 'excel-tab')
-    
-    # header
-    writer_out.writerow(['frame_start', 'frame_end', 'value', 'direction'])
-    
-    for i in range(0, len(start)):
-        writer_out.writerows([[start[i], end[i], 1000, motion_k]])
+    elif  motion_state != 'nan' and motion_state != p_motion_state:
+        if p_motion_state == "forward":
+            writer_out_f.writerows([[start_frame, frame-1, 1000, p_motion_state]])
 
-    fh.close()
+        elif p_motion_state == "backward":
+            writer_out_b.writerows([[start_frame, frame-1, 1000, p_motion_state]])
+
+        elif p_motion_state == "paused":
+            writer_out_p.writerows([[start_frame, frame-1, 1000, p_motion_state]])
+
+        start_frame = frame
+
+    p_motion_state = motion_state
+
+f_b.close()
+f_p.close()
+f_f.close()
+f.close()

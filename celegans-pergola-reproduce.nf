@@ -28,8 +28,8 @@
  * 
  */    
 
-params.strain1_trackings = "$baseDir/small_data/unc_16/*.mat"
-params.strain2_trackings = "$baseDir/small_data/N2/*.mat"
+params.strain1_trackings = "$baseDir/small_data/unc_16/*.hdf5"
+params.strain2_trackings = "$baseDir/small_data/N2/*.hdf5"
 params.mappings_speed    = "$baseDir/small_data/mappings/worms_speed2p.txt"
 params.mappings_bed      = "$baseDir/small_data/mappings/bed2pergola.txt"
 params.mappings_motion   = "$baseDir/small_data/mappings/worms_motion2p.txt"
@@ -50,7 +50,7 @@ log.info "image format                : ${params.image_format}"
 log.info "\n"
 
 /*
-nextflow run celegans-pergola-reproduce.nf --strain1_trackings 'small_data/unc_16/*.mat' --strain2_trackings 'small_data/N2/*.mat' \
+nextflow run celegans-pergola-reproduce.nf --strain1_trackings 'small_data/unc_16/*.hdf5' --strain2_trackings 'small_data/N2/*.hdf5' \
 	--mappings_speed 'small_data/mappings/worms_speed2p.txt' \
 	--mappings_bed 'small_data/mappings/bed2pergola.txt' \
 	--mappings_motion small_data/mappings/worms_motion2p.txt \
@@ -83,7 +83,7 @@ Channel
  */
 Channel
 	.fromPath( params.strain2_trackings )
-    .ifEmpty { error "Cannot find any mat file with strain 2 data" }
+    .ifEmpty { error "Cannot find any hdf5 file with strain 2 data" }
 	.set { strain2_files }
 
 /*
@@ -112,7 +112,7 @@ image_format = "${params.image_format}"
  */
 strain1_files_name = strain1_files.flatten().map { strain1_files_file ->      
   	def content = strain1_files_file
-  	def name = strain1_files_file.name.replaceAll(/ /,'_')
+  	def name = strain1_files_file.name.replaceAll(/ /,'_').replaceAll(/\(/, '').replaceAll(/\)/, '')
   	def tag = tag_str1
     [ content, name, tag ]
 }
@@ -123,7 +123,7 @@ strain1_files_name = strain1_files.flatten().map { strain1_files_file ->
  */
 strain2_files_name = strain2_files.flatten().map { strain2_files_file ->      
   	def content = strain2_files_file
-  	def name = strain2_files_file.name.replaceAll(/ /,'_')
+  	def name = strain2_files_file.name.replaceAll(/ /,'_').replaceAll(/\(/, '').replaceAll(/\)/, '')
   	def tag = tag_str2
     [ content, name, tag ]
 }
@@ -134,15 +134,15 @@ trackings_files_name.into { trackings_loc; trackings_motion }
 
 /*
  * Get locomotion phenotypic features from mat files (speed)
- */ 
+ */
 process get_feature {
   	
   	input:
   	set file ('file_worm'), val (name_file_worm), val (exp_group) from trackings_loc
   
   	output:  
-  	set '*_speed.csv', name_file_worm, exp_group into locomotions_files, locomotion_files_wr
-  	
+  	set '*.csv', name_file_worm, exp_group into locomotions_files, locomotion_files_wr
+
   	script:
   	println "Matlab file containing worm behavior processed: $name_file_worm"
 
@@ -153,7 +153,7 @@ process get_feature {
 
 /*
  * Transform locomotion files into bed format files
- */ 
+ */
 body_parts =  ['midbody']
 
 process feature_to_pergola {
@@ -201,15 +201,15 @@ process feature_to_pergola {
 
 /*
  * Transform motion intervals from mat files (forward, backward and paused)
- */ 
+ */
 process get_motion {
-	  
+
   	input:
   	set file ('file_worm'), val (name_file_worm) from trackings_motion
-  
-  	output: 
+
+  	output:
   	set name_file_worm, '*.csv' into motion_files, motion_files_wr
-    
+
   	script:
   	println "Matlab file containing worm motion processed: $name_file_worm"
 
@@ -226,8 +226,8 @@ process get_motion {
  *                        matfile2 -> forward ...
  */
 motion_files_flat_p = motion_files.map { name_mat, motion_f ->
-                          motion_f.collect { 
-        	                def motion = it.name.split("\\.")[1]   
+                          motion_f.collect {
+        	                def motion = it.name.split("\\.")[1]
                           [ it, name_mat, it.name, motion ]
                           }
                       }
@@ -235,22 +235,22 @@ motion_files_flat_p = motion_files.map { name_mat, motion_f ->
 
 motion_files_flat_p.into { motion_files_flat; motion_files_flat_wr }
 
-process motion_to_pergola { 
+process motion_to_pergola {
 
   	input:
   	set file ('motion_file'), val (name_file), val (name_file_motion), val (motion) from motion_files_flat
     file worms_motion_map from map_motion
-    
+
   	output:
   	set name_file, 'tr*.bed', name_file_motion into bed_motion, bed_motion_wr
-  	  	
+
   	"""
   	pergola -i $motion_file -m $worms_motion_map
   	cat tr_1_dt_${motion}.bed | sed 's/track name=\"1_a\"/track name=\"${motion}\"/g' > tr_1_dt_${motion}.bed.tmp
   	cat tr_1_dt_${motion}.bed.tmp | grep -v 'track name' > tr_1_dt_${motion}.bed
-  	rm tr_1_dt_${motion}.bed.tmp  	
+  	rm tr_1_dt_${motion}.bed.tmp
   	"""
-} 
+}
 
 map_bed.into { map_bed_loc; map_bed_bG}
 
@@ -269,9 +269,9 @@ process intersect_loc_motion {
 	  input:
 	  set val (mat_file_loc), val (pheno_feature), file ('bed_loc_no_tr'), val (exp_group), val (mat_motion_file), file (motion_file), val (name_file_motion), val (direction) from bed_loc_motion
 	  file bed2pergola from map_bed_loc.first()
-	
+
 	  output:
-	  set '*.mean.bed', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into bed_mean_speed_motion	
+	  set '*.mean.bed', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into bed_mean_speed_motion
 	  //set '*.mean.bedGraph', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into bedGr_mean_loc_motion
 	  set '*.intersect.bed', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into bed_intersect_loc_motion, bed_intersect_loc_motion2p, bed_intersect_l_m
 	  //set '*.mean_file.bed', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into mean_intersect_loc_motion
@@ -287,17 +287,17 @@ process intersect_loc_motion {
  * Intersected bed files transformed to bedgraph format for heatmap visualizations
  */
 process inters_to_bedGr {
-	
+
 	  input:
 	  set file (file_bed_inters), val (pheno_feature), val (mat_file_loc), val (mat_motion_file), val (name_file_motion), val (exp_group) from bed_intersect_l_m
 	  file bed2pergola from map_bed_bG.first()
-	
+
 	  output:
 	  set '*.bedGraph', pheno_feature, mat_file_loc, mat_motion_file, name_file_motion, exp_group into  bedGraph_intersect_loc_motion, bedGraph_intersect_loc_motion_str1, bedGraph_intersect_loc_motion_str2, bedGraph_intersect_loc_motion_str3, bedGraph_intersect_loc_motion_str4, bedGraph_intersect_loc_motion_str5, bedGraph_intersect_loc_motion_str6
-	
-	  """		
+
+	  """
 	  if [ -s $file_bed_inters ]
-	  then		
+	  then
 		  pergola -i $file_bed_inters -m $bed2pergola -nh -s chrm start end nature value strain start_rep end_rep color -f bedGraph -w 1
 	  else
 		  touch tr_chr1_d.bedGraph
@@ -306,14 +306,14 @@ process inters_to_bedGr {
 }
 
 /*
- * Grouping (collect) bed files in order to plot the distribution by strain, motion direction and body part 
+ * Grouping (collect) bed files in order to plot the distribution by strain, motion direction and body part
  */
-bed_intersect_loc_motion_plot = bed_intersect_loc_motion2p.collectFile(newLine: false, sort:'none') { 
+bed_intersect_loc_motion_plot = bed_intersect_loc_motion2p.collectFile(newLine: false, sort:'none') {
 	  def name = it[3].split("_on_")[0] + "." + it[1] + "." +  it[4].tokenize(".")[1] + "." +  it[5]
-	  [ name, it[0].text]	
-}.map {  
-	  def strain =  it.name.split("\\.")[0]	
-	  def pheno_feature =  it.name.split("\\.")[1]	
+	  [ name, it[0].text]
+}.map {
+	  def strain =  it.name.split("\\.")[0]
+	  def pheno_feature =  it.name.split("\\.")[1]
 	  def direction =  it.name.split("\\.")[2]
 	  def exp_group =  it.name.split("\\.")[3]
       def name_file = it.name.replaceAll("." + tag_str2, '').replaceAll("." + tag_str1, '')
@@ -328,15 +328,15 @@ process tag_bed_mean_files {
 
     //publishDir = [path: "results${tag_res}/inters_files_to_distro", mode: 'copy']
 
-  	input: 
+  	input:
   	set file ('bed_file'), val (strain), val (pheno_feature), val (direction), val (strain_beh_dir), val (exp_group) from bed_intersect_loc_motion_plot
-  	
+
   	output:
   	set '*.bed', strain, pheno_feature, direction, exp_group into bed_tagged
-  	
+
   	"""
   	# Adds to the bed file a tag for being used inside the R dataframe
-  	awk '{ print \$0, \"\\t$pheno_feature\\t$direction\\t$strain\" }' ${bed_file} > ${strain_beh_dir}.bed  
+  	awk '{ print \$0, \"\\t$pheno_feature\\t$direction\\t$strain\" }' ${bed_file} > ${strain_beh_dir}.bed
   	"""
 }
 
@@ -354,7 +354,7 @@ str1_bed_back = bed_tagged_for_str1_b
     .filter { it[4] == tag_str1 }
     .filter { it[3] == "backward" }
     .map { it[0] }
-				
+
 str1_bed_paused = bed_tagged_for_str1_p
 	  .filter { it[4] == tag_str1 }
 	  .filter { it[3] == "paused" }
@@ -369,7 +369,7 @@ str2_bed_back = bed_tagged_for_str2_b
     .filter { it[4] == tag_str2 }
     .filter { it[3] == "backward" }
     .map { it[0] }
-				
+
 str2_bed_paused = bed_tagged_for_str2_p
     .filter { it[4] == tag_str2 }
     .filter { it[3] == "paused" }
@@ -382,7 +382,7 @@ str1_bedGraph_heatmap = bedGraph_heatmap_str1
                         		.map { it[0] }
 str2_bedGraph_heatmap = bedGraph_heatmap_str2
               							.filter { it[2] =~ /^N2.*/  }
-              							.map { it[0] }						
+              							.map { it[0] }
 
 /*
  * Plotting heat map and density plots
@@ -391,7 +391,7 @@ process heat_and_density_plot {
 
     publishDir = [path: "results${tag_res}/igv", mode: 'copy', pattern: "*_igv"]
 
-  	input:  	
+  	input:
   	file (str1_f) from str1_bed_for
     file (str1_b) from str1_bed_back
     file (str1_p) from str1_bed_paused
@@ -402,7 +402,7 @@ process heat_and_density_plot {
     // This might be simplied as in the melanogaster example
     file (str1_bedGraph_heatmap_list) from str1_bedGraph_heatmap.toSortedList()
     file (str2_bedGraph_heatmap_list) from str2_bedGraph_heatmap.toSortedList()
-    
+
   	output:
     file "gviz_heatmap_str1_str2.${image_format}" into heatmap_gviz
     file ('results_bedgr1') into results_bedgr1
@@ -410,13 +410,13 @@ process heat_and_density_plot {
     file ('results_bedgr1_igv') into results_bedgr1_igv
     file ('results_bedgr2_igv') into results_bedgr2_igv
 
-  	"""  	
+  	"""
   	mkdir str1
   	mkdir str2
   	mkdir igv_str1
   	mkdir igv_str2
   	a=1
-  	
+
   	for bedg in ${str1_bedGraph_heatmap_list}
       do
       	  cp \${bedg} str1/bedg.str1.\${a}.bedGraph
@@ -426,7 +426,7 @@ process heat_and_density_plot {
   		  # mv igv_str1/\${a}.\$bedg{.new,}
   		  let a=a+1
   	  done
-  	
+
   	a=1
   	for bedg in ${str2_bedGraph_heatmap_list}
       	do
@@ -438,11 +438,11 @@ process heat_and_density_plot {
 
   	      let a=a+1
       	done
-  	
+
   	path_str1=`pwd`"/str1"
   	path_str2=`pwd`"/str2"
   	echo \$path_str2 > file.txt
-  	
+
   	heatmap_density_pheno_feature.R --path_str1=\$path_str1 --path_str2=\$path_str2 \
   		   --file_f_str1=${str1_f} --file_f_str2=${str2_f} \
   		   --file_b_str1=${str1_b} --file_b_str2=${str2_b} \
@@ -499,7 +499,7 @@ str1_str2_bed_tag = str1_bed_tagged
     .spread (str2_bed_tagged)
 	  //same feature and motion direction
 	  .filter { it[2] == it[7] && it[3] == it[8] }
-	  .map { [ it[0], it[1], it[2], it[3], it[5] ] }	
+	  .map { [ it[0], it[1], it[2], it[3], it[5] ] }
 
 /*
  * Plots the distribution of bed containing all intervals by strain, motion and body part compairing the distro of ctrl and case strain
@@ -510,7 +510,7 @@ process plot_distro {
 
   	input:
   	set file (intersect_feature_motion_str1), strain, pheno_feature, direction, file (intersect_feature_motion_strain2) from str1_str2_bed_tag
-  
+
   	output:
   	// R creates a Rplots.pdf that is why we have to specify the tag "out"
     set "*out.${image_format}", strain, pheno_feature, direction into plots_pheno_feature_str1_str2
@@ -526,13 +526,13 @@ process plot_distro {
 /*
  * Keeping longest fasta file (longest trajectory to generate genome for IGV viz)
  */
-longest_fasta = out_fasta     
+longest_fasta = out_fasta
                    .max { it.size() }
 
 result_dir_IGV = file("results/igv")
 
 
-longest_fasta.subscribe { 
-    fasta_file = it[0]    
+longest_fasta.subscribe {
+    fasta_file = it[0]
     fasta_file.copyTo ( result_dir_IGV.resolve ( "celegans.fa" ) )
 }
