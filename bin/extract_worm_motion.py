@@ -46,9 +46,9 @@ print >> stderr, "Input file: %s" % args.input
 input_file = args.input
 
 file_name = basename(input_file).split('.')[0]
-# file_name = file_name.replace(" ", "_")
-# file_name = file_name.replace('(', "")
-# file_name = file_name.replace(')', "")
+file_name = file_name.replace(" ", "_")
+file_name = file_name.replace('(', "")
+file_name = file_name.replace(')', "")
 
 f = h5py.File(input_file, 'r')
 time_series = f['features_timeseries']
@@ -78,25 +78,21 @@ motion_index = 3
 p_motion_state = "first"
 
 for frame in range(0, len(time_series)):
-    list_v = list()
-    list_v.extend([frame, frame + 1])
-
     try:
         motion_integer = time_series[frame][motion_index]
     except KeyError:
         raise KeyError("Motion field %s is corrupted and can not be retrieved from hdf5 file"
                        % (frame))
 
-    if np.isnan(motion_integer):
-        motion_state = p_motion_state
-    else:
+    if not np.isnan(motion_integer):
         motion_state = motion_state_f(motion_integer)
-    # motion_state = motion_state_f(time_series[frame][motion_index])
+    else:
+        motion_state = 'nan'
 
     if motion_state == "first":
         start_frame = frame
 
-    elif  motion_state != 'nan' and motion_state != p_motion_state:
+    elif motion_state != p_motion_state:
         if p_motion_state == "forward":
             writer_out_f.writerows([[start_frame, frame-1, 1000, p_motion_state]])
 

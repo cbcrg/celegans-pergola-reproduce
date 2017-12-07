@@ -46,9 +46,9 @@ print >> stderr, "Input file: %s" % args.input
 input_file = args.input
 
 file_name = basename(input_file).split('.')[0]
-# file_name = file_name.replace(" ", "_")
-# file_name = file_name.replace('(', '')
-# file_name = file_name.replace(')', '')
+file_name = file_name.replace(" ", "_")
+file_name = file_name.replace('(', '')
+file_name = file_name.replace(')', '')
 
 f = h5py.File(input_file, 'r')
 time_series = f['features_timeseries']
