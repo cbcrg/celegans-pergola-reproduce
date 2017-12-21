@@ -50,7 +50,7 @@ file_name = file_name.replace(" ", "_")
 file_name = file_name.replace('(', '')
 file_name = file_name.replace(')', '')
 
-with pd.HDFStore(file_name, 'r') as fid:
+with pd.HDFStore(input_file, 'r') as fid:
     time_series = fid['/features_timeseries']
 
 ## speed stuff
