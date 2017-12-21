@@ -75,7 +75,7 @@ if( !map_motion.exists() ) exit 1, "Missing motion mapping file: ${map_motion}"
  */
 Channel
     .fromPath( params.strain1_trackings )
-    .ifEmpty { error "Cannot find any mat file with strain 1 data" }
+    .ifEmpty { error "Cannot find any hdf5 file with strain 1 data" }
 	.set { strain1_files }
 	
 /*

@@ -29,11 +29,11 @@
 
 # Loading libraries
 from argparse import ArgumentParser
-import h5py
 from sys import stderr
 import numpy as np
 from csv import writer
 from os.path import basename
+import pandas as pd
 
 parser = ArgumentParser(description='File input arguments')
 parser.add_argument('-i', '--input', help='Worms data hdf5 format matlab file', required=True)
@@ -50,35 +50,34 @@ file_name = file_name.replace(" ", "_")
 file_name = file_name.replace('(', '')
 file_name = file_name.replace(')', '')
 
-f = h5py.File(input_file, 'r')
-time_series = f['features_timeseries']
+with pd.HDFStore(file_name, 'r') as fid:
+    time_series = fid['/features_timeseries']
 
 ## speed stuff
-velocity_keys = ['headTip', 'head', 'midbody', 'tail', 'tailTip']
-## velocity_keys = ['head_tip', 'head', 'midbody', 'tail', 'tail_tip']
+# velocity_keys = ['headTip', 'head', 'midbody', 'tail', 'tailTip']
+velocity_keys = ['head_tip_speed', 'head_speed', 'midbody_speed', 'tail_speed', 'tail_tip_speed']
+velocity_keys = ['midbody_speed']
 
 fs = open(file_name + ".csv",'wb')
 
 writer_out = writer(fs, dialect = 'excel-tab')
 
-writer_out.writerow(['frame_start', 'frame_end']  + sorted(velocity_keys) + ['foraging_speed', 'tail_motion', 'crawling'])
+# writer_out.writerow(['frame_start', 'frame_end']  + sorted(velocity_keys)) #+ ['foraging_speed', 'tail_motion_direction', 'midbody_crawling_amplitude'])
+writer_out.writerow(['frame_start', 'frame_end', 'midbody'])
 
-
-for frame in range(0, len(time_series)):
+# for frame in range(0, len(time_series)):
+for frame in range(0, time_series['midbody_speed'].size - 1):
     list_v = list()
     list_v.extend([frame, frame + 1])
 
-    velocity_keys = range(43, 47 + 1)
+    # velocity_keys = range(43, 47 + 1)
+    # velocity_keys.extend([54, 20, 39])
+    velocity_keys = ['midbody_speed']
 
-    # foraging angle speed index=54
-    # tail motion (in the new files tail_orientation index 20)
-    # Crawling in the new file midbody_crawling_amplitude index 39
-    velocity_keys.extend([54, 20, 39])
-    # velocity_keys = [45]
     for velocity_k in sorted(velocity_keys):
 
         try:
-            v = time_series[frame][velocity_k]
+            v = time_series[velocity_k][frame]
         except KeyError:
             raise KeyError("Velocity field %s is corrupted and can not be retrieved from hdf5 file"
                            % (velocity_k, frame))
@@ -90,4 +89,3 @@ for frame in range(0, len(time_series)):
     writer_out.writerows([list_v])
 
 fs.close()
-f.close()

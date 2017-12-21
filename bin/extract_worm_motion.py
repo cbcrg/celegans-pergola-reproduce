@@ -29,11 +29,11 @@
 
 # Loading libraries
 from argparse import ArgumentParser
-import h5py
 from sys import stderr
 import numpy as np
 from csv import writer
 from os.path import basename
+import pandas as pd
 
 parser = ArgumentParser(description='File input arguments')
 parser.add_argument('-i', '--input', help='Worms data hdf5 format matlab file', required=True)
@@ -50,8 +50,8 @@ file_name = file_name.replace(" ", "_")
 file_name = file_name.replace('(', "")
 file_name = file_name.replace(')', "")
 
-f = h5py.File(input_file, 'r')
-time_series = f['features_timeseries']
+with pd.HDFStore(file_name, 'r') as fid:
+    time_series = fid['/features_timeseries']
 
 ## motion stuff
 f_b = open(file_name + "." + "backward" + ".csv",'wb')
@@ -77,9 +77,10 @@ def motion_state_f(x):
 motion_index = 3
 p_motion_state = "first"
 
-for frame in range(0, len(time_series)):
+# for frame in range(0, len(time_series)):
+for frame in range(0, time_series['motion_modes'].size - 1):
     try:
-        motion_integer = time_series[frame][motion_index]
+        motion_integer = time_series['motion_modes'][frame]
     except KeyError:
         raise KeyError("Motion field %s is corrupted and can not be retrieved from hdf5 file"
                        % (frame))
@@ -109,4 +110,3 @@ for frame in range(0, len(time_series)):
 f_b.close()
 f_p.close()
 f_f.close()
-f.close()
