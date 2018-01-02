@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -143,17 +143,8 @@ df_bed <- rbind (df_str1, df_str2)
 name_file <- basename(bed_file_str1)
 
 df_bed <- rbind (df_str1, df_str2)
-name_split <- strsplit (name_file, "\\." )
-
-# body_part <- name_split[[1]][2]
-# motion <- name_split[[1]][3]
-# motion <- gsub ("backward", "when reversing", motion)
 
 pheno_feature <- strsplit (name_file,  "\\.")[[1]][2]
-#units <- switch (pheno_feature, foraging_speed="Degrees/seconds", tail_motion="Degrees/seconds", crawling="Degrees", 'no units')
-# units <-"Microns/seconds"
-
-# title_strain_pheno_dir <- gsub("_", " ", gsub ("\\.", " - ", gsub ("\\.bed", "", name_file)))
 
 ## color blind friendly palette
 cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -213,8 +204,8 @@ units_lab <- expression(paste(mu, "m / s", "\n", sep=""))
 ggplot(df_bed, aes(x=value, fill=strain)) + geom_density(alpha=0.25) +
        scale_x_continuous (breaks=breaks_v, limits=c(xmin, xmax)) +
        scale_y_continuous(breaks=NULL) +
-	   labs (x = units_lab, 
-			 y = expression(paste("Probability (", Sigma, "P(x) = 1)", "\n", sep=""))) +         
+	   labs (x = units_lab,
+			 y = expression(paste("Probability (", Sigma, "P(x) = 1)", "\n", sep=""))) +
        theme (axis.text.x = element_text(size=size_axis_ticks, family=font)) +
 	   theme (legend.key.size = unit(0.8, "cm"), legend.title = element_blank()) +
        theme (plot.title = element_text(size=size_titles, family=font)) +
@@ -222,7 +213,7 @@ ggplot(df_bed, aes(x=value, fill=strain)) + geom_density(alpha=0.25) +
        theme (axis.title.y = element_text(size=size_axis, family=font)) +
        theme (axis.text.x = element_text(size=size_axis_ticks, family=font)) +
        theme (axis.text.y = element_text(size=size_axis_ticks_y, family=font)) +
-scale_fill_manual(name='', labels = labs_plot, values = cbb_palette)
+       scale_fill_manual(name='', labels = labs_plot, values = cbb_palette)
                 
 ggsave (file=name_out, width = plot_width, height=plot_height)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -50,22 +50,22 @@ file_name = file_name.replace(" ", "_")
 file_name = file_name.replace("(", "")
 file_name = file_name.replace(")", "")
 
-f = h5py.File(input_file)
+f = h5py.File(input_file, 'r')
 
 ## speed stuff
-velocity_keys = ['headTip', 'head', 'midbody', 'tail', 'tailTip']
-# velocity_keys = ['head_tip', 'head', 'midbody', 'tail', 'tail_tip']
+# velocity_keys = ['headTip', 'head', 'midbody', 'tail', 'tailTip']
+## velocity_keys = ['head_tip', 'head', 'midbody', 'tail', 'tail_tip']
 
-fh = open(file_name + "_speed.csv",'wb')
+# fh = open(file_name + "_speed.csv",'wb')
 
-writer_out = writer(fh, dialect = 'excel-tab')
+# writer_out = writer(fh, dialect = 'excel-tab')
 
-writer_out.writerow(['frame_start', 'frame_end']  + sorted(velocity_keys) + ['foraging_speed', 'tail_motion', 'crawling'])
+# writer_out.writerow(['frame_start', 'frame_end']  + sorted(velocity_keys) + ['foraging_speed', 'tail_motion', 'crawling'])
 
 ## motion stuff
-f_b = open(file_name + "." + "backward" + ".csv",'wb')
-f_p = open(file_name + "." + "paused" + ".csv",'wb')
-f_f = open(file_name + "." + "forward" + ".csv",'wb')
+f_b = open(file_name + "." + "backward" + ".mot_csv",'wb')
+f_p = open(file_name + "." + "paused" + ".mot_csv",'wb')
+f_f = open(file_name + "." + "forward" + ".mot_csv",'wb')
 
 writer_out_b = writer(f_b, dialect='excel-tab')
 writer_out_p = writer(f_p, dialect='excel-tab')
@@ -79,7 +79,7 @@ def motion_state_f(x):
     return {
         -1:'backward',
         1: 'forward',
-        0:'paused',
+        0: 'paused',
         'nan': 'nan'
     }[x]
 
@@ -90,25 +90,26 @@ for frame in range(0, len(f['features_timeseries'])):
     list_v = list()
     list_v.extend([frame, frame + 1])
 
-    velocity_keys = range(43, 47 + 1)
-
-    # foraging angle speed index=54
-    # tail motion (in the new files tail_orientation index 20)
-    # Crawling in the new file midbody_crawling_amplitude index 39
-    velocity_keys.extend([54, 20, 39])
-
-    for velocity_k in sorted(velocity_keys):
-        try:
-            v = f['features_timeseries'][frame][velocity_k]
-        except KeyError:
-            raise KeyError("Velocity field %s is corrupted and can not be retrieved from hdf5 file"
-                           % (velocity_k, frame))
-
-        if np.isnan(v): v = -10000
-
-        list_v.append(v)
-
-    writer_out.writerows([list_v])
+    # velocity_keys = range(43, 47 + 1)
+    #
+    # # foraging angle speed index=54
+    # # tail motion (in the new files tail_orientation index 20)
+    # # Crawling in the new file midbody_crawling_amplitude index 39
+    # velocity_keys.extend([54, 20, 39])
+    # # velocity_keys = [45]
+    # for velocity_k in sorted(velocity_keys):
+    #
+    #     try:
+    #         v = f['features_timeseries'][frame][velocity_k]
+    #     except KeyError:
+    #         raise KeyError("Velocity field %s is corrupted and can not be retrieved from hdf5 file"
+    #                        % (velocity_k, frame))
+    #
+    #     if np.isnan(v): v = -10000
+    #
+    #     list_v.append(v)
+    #
+    # writer_out.writerows([list_v])
 
     try:
         motion_integer = f['features_timeseries'][frame][motion_index]
@@ -143,3 +144,4 @@ fh.close()
 f_b.close()
 f_p.close()
 f_f.close()
+f.close()

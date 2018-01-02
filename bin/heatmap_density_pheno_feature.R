@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2016, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2016, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -190,12 +190,9 @@ names (argsL) <- argsDF$V1
     image_format <- argsL$image_format
   }
 }
-
-label_gr_2 <- "UNC-16"
-label_gr_2 <- "N2"
  
 #############################
-## Read files bedGraph files
+## Read ctrl bedGraph files
 ctrl_worms.base <- path_str2
 ctrl.worms.bedg.files <- list.files(ctrl_worms.base, pattern="*.bedGraph$", full.names=TRUE)
 
@@ -211,19 +208,13 @@ scores_bedgr_n2 <- sapply (ctrl.worms.bedg.files, y <- function (x) { data <- re
 # files do need to have the same number of windows
 df_bedg_n2 <- data.frame(scores_bedgr_n2)
 df_bedg_n2 [df_bedg_n2 == -10000] <- 0
-names(df_bedg_n2) <- paste ("n2_", seq (1 : length(df_bedg_n2[1,])), sep="")
+names(df_bedg_n2) <- paste ("N2_", seq (1 : length(df_bedg_n2[1,])), sep="")
 head (df_bedg_n2)
 n2_bedg_GR <- GRanges()
 n2_bedg_GR <- import(ctrl.worms.bedg.files [[1]], format = "bedGraph")
 mcols(n2_bedg_GR) <- df_bedg_n2
 
-## Heatmap
-n2_bedg_dt_heatMap <- DataTrack(n2_bedg_GR, name = "midbody speed (microns/s)", type="heatmap", ylim=c(-400, 400), 
-                                gradient=c('blue', 'white','red'),
-                                #groups = group_tr_rev, col=c(col_case, col_ctrl), 
-                                legend=FALSE)
-
-# Read unc16 data
+# Read unc16 bedGraph files
 case_worms.base <- path_str1
 case.worms.bedg.files <- list.files(case_worms.base, pattern="*.bedGraph$", full.names=TRUE)
 
@@ -237,20 +228,10 @@ scores_bedgr_unc16 <- sapply (case.worms.bedg.files, y <- function (x) { data <-
 
 df_bedg_unc16 <- data.frame(scores_bedgr_unc16)
 df_bedg_unc16 [df_bedg_unc16 == -10000] <- 0
-names(df_bedg_unc16) <- paste ("unc16_", seq (1 : length(df_bedg_unc16[1,])), sep="")
+names(df_bedg_unc16) <- paste ("UNC-16_", seq (1 : length(df_bedg_unc16[1,])), sep="")
 unc16_bedg_GR <- GRanges()
 unc16_bedg_GR <- import(case.worms.bedg.files[[1]], format = "bedGraph")
 mcols(unc16_bedg_GR) <- df_bedg_unc16
-
-## Heatmap unc16
-unc16_bedg_dt_heatMap <- DataTrack(unc16_bedg_GR, name = "midbody speed (microns/s)", type="heatmap", ylim=c(-400, 400), 
-                                   gradient=c('blue', 'white','red'),
-                                   #groups = group_tr_rev, col=c(col_case, col_ctrl), 
-                                   legend=FALSE)
-
-### Plot track
-# plotTracks(unc16_bedg_dt_heatMap, from=1, to=20000,
-#            showSampleNames = TRUE, cex.sampleNames = 0.6)# sample names in heatmap
 
 ## join both n2 and unc-16
 n2_unc16_bedg_GR <- GRanges()
@@ -386,6 +367,7 @@ pt <- plotTracks(c(n2_unc16_bedg_dt_heatMap, gtrack), from=1, to=23000, col = NU
                  showSampleNames = TRUE, cex.sampleNames = 0.6, add=TRUE) ## ADD TRUE!!!! #, title.width=10
 
 popViewport(1)
+
 print(plot_str1_str2_for, vp = viewport(layout.pos.row = 3, layout.pos.col = 1))
 
 print(plot_str1_str2_paused, vp = viewport(layout.pos.row = 3, layout.pos.col = 2))

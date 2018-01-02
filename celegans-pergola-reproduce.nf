@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 /*
- *  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
- *  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+ *  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+ *  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
  *
  *  This file is part of Pergola.
  *
@@ -520,6 +520,9 @@ process plot_distro {
   	    --bed_file_str2=${intersect_feature_motion_strain2} \
   	    --direction=${direction} \
   	    --image_format=${image_format}
+
+    file=`ls *out.${image_format}`
+    mv "\$file" "`echo \$file | sed 's/^[^.]*.//g'`"
   	"""
 }
 
