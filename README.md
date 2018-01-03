@@ -14,72 +14,22 @@ cd celegans-pergola-reproduce
 ```
 
 ## Data
-
-Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1067834.svg)](https://doi.org/10.5281/zenodo.1067834).
+The data used for the paper analysis has been gathered and is publicly available at [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1101067.svg)](https://doi.org/10.5281/zenodo.1101067).
 
 Data can be downloaded and uncompressed using the following command:
 
 ```bash
 mkdir data
-wget -O- https://zenodo.org/record/1067834/files/celegans_dataset.tar.gz | tar xz -C data
+wget -O- https://zenodo.org/record/1101067/files/celegans_dataset.tar.gz | tar xz -C data
 ```
 
-#### Original Data Sources
+**Note**: If you prefer to download the data from the original data sources go to original data sources 
+[section](#original-data-sources)
 
-~~If you prefer, you can download the data from the original sources~~:
-~~N2 C.elegans strain (control) behavioral recordings: [N2](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=300)~~
-~~unc-16 C.elegans strain behavioral recordings: [unc-16](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=1)~~
-
-The database has been migrated and the data can now be accessed at this [link](http://movement.openworm.org/) 
-
-**Note**: Only a subset of the N2 files available on the database, those recorded within a 2-week window centered around the unc-16 mutant strain, have been used for the analysis. The detailed list of files is:
-
-```bash
-N2 on food L_2009_12_09__10_31_26___6___1_features.mat
-N2 on food L_2009_12_09__10_31_54___4___1_features.mat
-N2 on food L_2009_12_10__10_20_00___1___1_features.mat
-N2 on food L_2009_12_10__10_20_40___6___1_features.mat
-N2 on food L_2009_12_10__10_20___3___1_features.mat
-N2 on food L_2009_12_10__10_21_10___4___1_features.mat
-N2 on food L_2009_12_10__10_22_01___7___1_features.mat
-N2 on food L_2009_12_11__12_03_49___8___1_features.mat
-N2 on food L_2009_12_11__12_04_46__1_features.mat
-N2 on food L_2009_12_14__10_21___3___1_features.mat
-N2 on food L_2009_12_14__10_22_12___8___1_features.mat
-N2 on food L_2009_12_14__10_22_30___7___1_features.mat
-N2 on food L_2009_12_15__10_22_57___2___1_features.mat
-N2 on food L_2009_12_15__10_22___3___1_features.mat
-N2 on food L_2009_12_15__10_23_42___8___1_features.mat
-N2 on food L_2009_12_15__10_24_35__1_features.mat
-N2 on food L_2009_12_17__11_02_29___1___1_features.mat
-N2 on food L_2009_12_17__11_03_15___6___1_features.mat
-N2 on food L_2009_12_17__11_03_42___4___1_features.mat
-N2 on food L_2009_12_17__11_05_22___7___2_features.mat
-N2 on food R_2009_12_09__10_30_41___1___1_features.mat
-N2 on food R_2009_12_09__10_31_25___2___1_features.mat
-N2 on food R_2009_12_09__10_31___3___1_features.mat
-N2 on food R_2009_12_09__10_32_28___8___1_features.mat
-N2 on food R_2009_12_10__10_20_42___2___1_features.mat
-N2 on food R_2009_12_10__10_21_43___8___1_features.mat
-N2 on food R_2009_12_11__12_01_09___1___1_features.mat
-N2 on food R_2009_12_11__12_01_52___2___1_features.mat
-N2 on food R_2009_12_11__12_01___3___1_features.mat
-N2 on food R_2009_12_11__12_04_07___7___1_features.mat
-N2 on food R_2009_12_14__10_20_23___1___2_features.mat
-N2 on food R_2009_12_14__10_21_06___2___2_features.mat
-N2 on food R_2009_12_14__10_21_38___4___1_features.mat
-N2 on food R_2009_12_14__10_23_04__1_features.mat
-N2 on food R_2009_12_15__10_21_50___1___1_features.mat
-N2 on food R_2009_12_15__10_22_39___6___1_features.mat
-N2 on food R_2009_12_15__10_23_59___7___1_features.mat
-N2 on food R_2009_12_17__11_04_16___8___1_features.mat
-N2 on food_2009_12_09__10_32_45___7___1_features.mat
-N2 on food_2009_12_09__10_33_20__1_features.mat
-```
+## Pull docker image
 
 If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](https://github.com/cbcrg/pergola-reproduce/blob/master/README.md)
 
-## Pull docker image
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
 
 ```bash
@@ -97,7 +47,7 @@ NXF_VER=0.26.1 nextflow run celegans-pergola-reproduce.nf \
     --mappings_bed 'data/mappings/bed2pergola.txt' \
     --mappings_motion data/mappings/worms_motion2p.txt \
     -with-docker
-```	
+```
 
 ##  Results
 
@@ -146,3 +96,84 @@ Finally click on the same menu the **Set Heatmap Scale** option and select the c
 
 <img src="/images/heatmap_options.png" alt="snapshot create-genome" style="width: 100%;"/>
  
+
+#### Original Data Sources
+
+~~If you prefer, you can download the data from the original sources~~:
+~~N2 C.elegans strain (control) behavioral recordings: [N2](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=300)~~
+~~unc-16 C.elegans strain behavioral recordings: [unc-16](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=1)~~
+
+The database has been migrated and the data can now be accessed at this [link](http://movement.openworm.org/) 
+
+Actually, the DB points to records hosted in Zenodo as well. If you prefer to download the data from original Zenodo
+records used the following links:
+
+##### unc-16 data
+
+```bash
+https://zenodo.org/record/1031398/files/unc-16 (e109) on food R_2009_12_09__11_53_42___2___5_features.hdf5 
+https://zenodo.org/record/1030731/files/unc-16 (e109) on food L_2009_12_09__11_52_59___1___5_features.hdf5 
+https://zenodo.org/record/1030675/files/unc-16 (e109) on food L_2009_12_09__11_56_23___8___6_features.hdf5 
+https://zenodo.org/record/1030635/files/unc-16 (e109) on food R_2009_12_11__12_21_06___1___2_features.hdf5 
+https://zenodo.org/record/1030551/files/unc-16 (e109) on food R_2009_12_10__11_43_22___8___5_features.hdf5 
+https://zenodo.org/record/1030449/files/unc-16 (e109) on food L_2009_12_11__12_21___3___2_features.hdf5 
+https://zenodo.org/record/1029258/files/unc-16 (e109) on food L_2009_12_11__12_23_44__2_features.hdf5 
+https://zenodo.org/record/1029107/files/unc-16 (e109) on food R_2009_12_10__11_42___3___5_features.hdf5 
+https://zenodo.org/record/1028861/files/unc-16 (e109) on food L_2009_12_10__11_42_17___2___5_features.hdf5 
+https://zenodo.org/record/1028581/files/unc-16 (e109) on food L_2009_12_09__11_56_41___7___5_features.hdf5 
+https://zenodo.org/record/1028255/files/unc-16 (e109) on food R_2009_12_11__12_21_48___2___2_features.hdf5 
+https://zenodo.org/record/1027743/files/unc-16 (e109) on food R_2009_12_09__11_53___3___5_features.hdf5 
+https://zenodo.org/record/1026603/files/unc-16 (e109) on food L_2009_12_11__12_23_10___7___2_features.hdf5 
+https://zenodo.org/record/1025348/files/unc-16 (e109) on food L_2009_12_10__11_42_48___4___5_features.hdf5 
+https://zenodo.org/record/1023916/files/unc-16 (e109) on food L_2009_12_10__11_43_41___7___5_features.hdf5 
+https://zenodo.org/record/1020092/files/unc-16 (e109) on food R_2009_12_10__11_44_17__5_features.hdf5 
+https://zenodo.org/record/1007843/files/unc-16 (e109) on food L_2009_12_09__11_54_10___4___5_features.hdf5 
+https://zenodo.org/record/1003973/files/unc-16 (e109) on food R_2009_12_11__12_21_49___6___2_features.hdf5 
+https://zenodo.org/record/1003866/files/unc-16 (e109) on food R_2009_12_10__11_42_21___6___5_features.hdf5 
+https://zenodo.org/record/1003814/files/unc-16 (e109) on food R_2009_12_09__11_55_21___6___5_features.hdf5
+```
+##### N2 data
+**Note**: Only a subset of the N2 files available on the database, those recorded within a 2-week window centered around the unc-16 mutant strain, have been used for the analysis. The detailed list of files is:
+
+```bash
+https://zenodo.org/record/1033831/files/N2 on food L_2009_12_09__10_31_54___4___1_features.hdf5
+https://zenodo.org/record/1030359/files/N2 on food L_2009_12_15__10_22___3___1_features.hdf5
+https://zenodo.org/record/1030186/files/N2 on food R_2009_12_09__10_30_41___1___1_features.hdf5
+https://zenodo.org/record/1030064/files/N2 on food R_2009_12_10__10_20_42___2___1_features.hdf5
+https://zenodo.org/record/1029910/files/N2 on food R_2009_12_09__10_31___3___1_features.hdf5
+https://zenodo.org/record/1029792/files/N2 on food R_2009_12_11__12_01_52___2___1_features.hdf5
+https://zenodo.org/record/1029719/files/N2 on food R_2009_12_11__12_01_09___1___1_features.hdf5
+https://zenodo.org/record/1029463/files/N2 on food L_2009_12_15__10_22_57___2___1_features.hdf5
+https://zenodo.org/record/1029166/files/N2 on food R_2009_12_09__10_31_25___2___1_features.hdf5
+https://zenodo.org/record/1029005/files/N2 on food R_2009_12_10__10_21_43___8___1_features.hdf5
+https://zenodo.org/record/1028853/files/N2 on food R_2009_12_09__10_32_28___8___1_features.hdf5
+https://zenodo.org/record/1028265/files/N2 on food L_2009_12_14__10_21___3___1_features.hdf5
+https://zenodo.org/record/1028104/files/N2 on food R_2009_12_11__12_04_07___7___1_features.hdf5
+https://zenodo.org/record/1027697/files/N2 on food R_2009_12_11__12_01___3___1_features.hdf5
+https://zenodo.org/record/1026362/files/N2 on food L_2009_12_15__10_23_42___8___1_features.hdf5
+https://zenodo.org/record/1026260/files/N2 on food R_2009_12_15__10_21_50___1___1_features.hdf5
+https://zenodo.org/record/1025470/files/N2 on food R_2009_12_14__10_21_06___2___2_features.hdf5
+https://zenodo.org/record/1024484/files/N2 on food R_2009_12_15__10_23_59___7___1_features.hdf5
+https://zenodo.org/record/1024246/files/N2 on food L_2009_12_14__10_22_12___8___1_features.hdf5
+https://zenodo.org/record/1023706/files/N2 on food L_2009_12_11__12_03_49___8___1_features.hdf5
+https://zenodo.org/record/1023613/files/N2 on food R_2009_12_14__10_20_23___1___2_features.hdf5
+https://zenodo.org/record/1022692/files/N2 on food L_2009_12_10__10_20_00___1___1_features.hdf5
+https://zenodo.org/record/1021677/files/N2 on food L_2009_12_10__10_20___3___1_features.hdf5
+https://zenodo.org/record/1019655/files/N2 on food L_2009_12_15__10_24_35__1_features.hdf5
+https://zenodo.org/record/1017883/files/N2 on food R_2009_12_14__10_23_04__1_features.hdf5
+https://zenodo.org/record/1017594/files/N2 on food L_2009_12_14__10_22_30___7___1_features.hdf5
+https://zenodo.org/record/1016159/files/N2 on food L_2009_12_10__10_22_01___7___1_features.hdf5
+https://zenodo.org/record/1014751/files/N2 on food_2009_12_09__10_33_20__1_features.hdf5 
+https://zenodo.org/record/1014381/files/N2 on food_2009_12_09__10_32_45___7___1_features.hdf5 
+https://zenodo.org/record/1011907/files/N2 on food L_2009_12_11__12_04_46__1_features.hdf5
+https://zenodo.org/record/1008303/files/N2 on food R_2009_12_14__10_21_38___4___1_features.hdf5
+https://zenodo.org/record/1007895/files/N2 on food L_2009_12_10__10_21_10___4___1_features.hdf5
+https://zenodo.org/record/1004855/files/N2 on food R_2009_12_15__10_22_39___6___1_features.hdf5
+https://zenodo.org/record/1003856/files/N2 on food L_2009_12_10__10_20_40___6___1_features.hdf5
+https://zenodo.org/record/1003800/files/N2 on food L_2009_12_09__10_31_26___6___1_features.hdf5
+https://zenodo.org/record/1017607/files/N2 on food L_2009_12_17__11_05_22___7___2_features.hdf5
+https://zenodo.org/record/1024180/files/N2 on food R_2009_12_17__11_04_16___8___1_features.hdf5
+https://zenodo.org/record/1027779/files/N2 on food L_2009_12_17__11_02_29___1___1_features.hdf5
+https://zenodo.org/record/1008576/files/N2 on food L_2009_12_17__11_03_42___4___1_features.hdf5
+https://zenodo.org/record/1005033/files/N2 on food L_2009_12_17__11_03_15___6___1_features.hdf5
+```
