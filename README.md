@@ -41,8 +41,8 @@ Once data is downloaded, it is possible to reproduce all the paper results using
 
 ```bash
 NXF_VER=0.26.1 nextflow run celegans-pergola-reproduce.nf \
-    --strain1_trackings 'data/unc_16/*.mat' \
-    --strain2_trackings 'data/N2/*.mat' \
+    --strain1_trackings 'data/unc_16/*.hdf5' \
+    --strain2_trackings 'data/N2/*.hdf5' \
     --mappings_speed 'data/mappings/worms_speed2p.txt' \
     --mappings_bed 'data/mappings/bed2pergola.txt' \
     --mappings_motion data/mappings/worms_motion2p.txt \
@@ -97,7 +97,7 @@ Finally click on the same menu the **Set Heatmap Scale** option and select the c
 <img src="/images/heatmap_options.png" alt="snapshot create-genome" style="width: 100%;"/>
  
 
-#### Original Data Sources
+## Original Data Sources
 
 ~~If you prefer, you can download the data from the original sources~~:
 ~~N2 C.elegans strain (control) behavioral recordings: [N2](http://wormbehavior.mrc-lmb.cam.ac.uk/strain.php?strain=300)~~
