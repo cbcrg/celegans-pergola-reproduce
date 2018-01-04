@@ -375,11 +375,12 @@ str2_bed_paused = bed_tagged_for_str2_p
     .filter { it[3] == "paused" }
     .map { it[0] }
 
-bedGraph_heatmap.into { bedGraph_heatmap_intro; bedGraph_heatmap_str1; bedGraph_heatmap_str2}
+bedGraph_heatmap.into { bedGraph_heatmap_intro; bedGraph_heatmap_str1; bedGraph_heatmap_str2 }
 
 str1_bedGraph_heatmap = bedGraph_heatmap_str1
                         		.filter { it[2] =~ /^unc-16.*/  }
                         		.map { it[0] }
+
 str2_bedGraph_heatmap = bedGraph_heatmap_str2
               							.filter { it[2] =~ /^N2.*/  }
               							.map { it[0] }
@@ -400,8 +401,8 @@ process heat_and_density_plot {
     file (str2_p) from str2_bed_paused
 
     // This might be simplied as in the melanogaster example
-    file (str1_bedGraph_heatmap_list) from str1_bedGraph_heatmap.toSortedList()
-    file (str2_bedGraph_heatmap_list) from str2_bedGraph_heatmap.toSortedList()
+    file (str1_bedGraph_heatmap_list) from str1_bedGraph_heatmap.toSortedList { it.name }
+    file (str2_bedGraph_heatmap_list) from str2_bedGraph_heatmap.toSortedList { it.name }
 
   	output:
     file "gviz_heatmap_str1_str2.${image_format}" into heatmap_gviz
