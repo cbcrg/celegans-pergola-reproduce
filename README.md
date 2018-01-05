@@ -33,7 +33,7 @@ If you have not install yet [docker](https://www.docker.com/) and [nextflow](htt
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
 
 ```bash
-docker pull pergola/pergola@sha256:f7208e45e761dc0cfd3e3915237eb1a96eead6dfa9c8f3a5b2414de9b8df3a3d
+docker pull pergola/pergola@sha256:0737f3e70dde73d0272a0be37e05a36a6fed390c8820c5d2834076b711ab707f
 ```
 
 ## Run nextflow pipeline
@@ -57,7 +57,7 @@ The nextflow pipeline produces a results folder containing:
 * A figure created using [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) depicting in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
 * A figure created using [Sushi](https://bioconductor.org/packages/release/bioc/html/Sushi.html) rendering in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
 * A folder containing all the necessary files to compare mid body speed of the two strains in a heatmap using [IGV](http://software.broadinstitute.org/software/igv/). Data is separated in folders corresponding to each mouse group.
-See [below](IGV-visualization) for a detailed explanation of how to load the data on IGV.
+See [below](#IGV-visualization) for a detailed explanation of how to load the data on IGV.
 
 
 ## IGV visualization
