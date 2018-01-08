@@ -40,7 +40,7 @@ docker pull pergola/pergola@sha256:0737f3e70dde73d0272a0be37e05a36a6fed390c8820c
 Once data is downloaded, it is possible to reproduce all the paper results using this command:
 
 ```bash
-NXF_VER=0.26.1 nextflow run celegans-pergola-reproduce.nf \
+NXF_VER=0.26.4 nextflow run celegans-pergola-reproduce.nf \
     --strain1_trackings 'data/unc_16/*.hdf5' \
     --strain2_trackings 'data/N2/*.hdf5' \
     --mappings_speed 'data/mappings/worms_speed2p.txt' \
