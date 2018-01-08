@@ -37,7 +37,7 @@ params.output            = "results/"
 params.tag_results       = ""
 params.image_format      = "tiff"
 
-log.info "C. elegans locomotion phenotypes comparison - N F  ~  version 0.2"
+log.info "C. elegans locomotion phenotypes comparison - N F  ~  version 0.2.0"
 log.info "========================================================="
 log.info "C. elegans strain 1 data    : ${params.strain1_trackings}"
 log.info "C. elegans strain 2 data    : ${params.strain2_trackings}"
