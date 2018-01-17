@@ -33,6 +33,7 @@ from sys import stderr
 import numpy as np
 from csv import writer
 from os.path import basename
+from os import rename
 import pandas as pd
 
 parser = ArgumentParser(description='File input arguments')
@@ -47,8 +48,8 @@ input_file = args.input
 
 file_name = basename(input_file).split('.')[0]
 file_name = file_name.replace(" ", "_")
-file_name = file_name.replace('(', "")
-file_name = file_name.replace(')', "")
+file_name = file_name.replace('(', '')
+file_name = file_name.replace(')', '')
 
 with pd.HDFStore(input_file, 'r') as fid:
     time_series = fid['/features_timeseries']

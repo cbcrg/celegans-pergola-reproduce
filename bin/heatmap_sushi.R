@@ -96,19 +96,19 @@ df_order <- as.data.frame(bedg_files)
 df_order$id_num <- as.numeric(sub("bedg.str[1-2].(.*?)\\.bedGraph", "\\1", basename(bedg_files)))
 bedg_files <- as.vector(df_order[with(df_order, order(id_num)), "bedg_files"])
 
-unite_scale <- function (v, min=-400, max=400) {
-    if (v < -400 & v != -10000) { return (1) }
-    else if (v > 400 ) { return (1) }
-    else if (v == -10000) { return (0) } 
-    else if (v < 0) { return ((v - min) / (0 - min)) } 
-    return ((v - 0) / (max - 0))
+unite_scale <- function (v, max=400) {
+  v_abs <- abs(v)
+  if (v_abs > max ) { return (1) }
+  else if (v_abs == 10000) { return (0) }
+  return ((v_abs - 0) / (max - 0))
 }
 
 data_bedgraph_variable <- lapply(bedg_files, function (bedg) {
     
     name_id <- gsub("bedg.str1.", "", gsub(".bedGraph", "", basename(bedg)))  
     bedg_tbl <- read.csv(file=bedg, header=FALSE, sep="\t", stringsAsFactors=FALSE)
-    bedg_tbl$name <- as.numeric(name_id)    
+    bedg_tbl$name <- as.numeric(name_id)
+    bedg_tbl$V4[bedg_tbl$V4==-10000] <- 0
     bedg_tbl$color <- ifelse(bedg_tbl$V4 > 0, opaque("red", transparency=sapply(bedg_tbl$V4, unite_scale)), opaque("blue", transparency=sapply(bedg_tbl$V4, unite_scale)))
     
     return (bedg_tbl)
@@ -124,7 +124,8 @@ height_tr <- max(length(data_bedgraph_variable) * 0.5, 10)
 {
     if (image_format == 'tiff' | image_format == 'tif') {
         # tiff(paste("sushi_var", ".", image_format, sep="") , height=10, width=20, units="cm", res=300)
-        tiff(paste("sushi_var", ".", image_format, sep="") , height=20, width=30, units="cm", res=300)
+        # tiff(paste("sushi_var", ".", image_format, sep="") , height=height_tr, width=25, units="cm", res=300)
+        tiff(paste("sushi_var", ".", image_format, sep=""), width=3543, height=2362, res=300)
         size_lab <- 0.3
     }
     else if (image_format == 'pdf') {        
@@ -133,7 +134,7 @@ height_tr <- max(length(data_bedgraph_variable) * 0.5, 10)
         size_lab <- 0.5
     }
     else if (image_format == 'png') {        
-        png(paste("sushi_var", ".", image_format, sep=""))
+        png(paste("sushi_var", ".", image_format, sep=""), height=height_tr*100,  width=4000, res=300)
         size_lab <- 0.3
     }
     else {
