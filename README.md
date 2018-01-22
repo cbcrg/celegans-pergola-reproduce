@@ -1,6 +1,6 @@
 # celegans-pergola-reproduce.nf
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1068507.svg)](https://doi.org/10.5281/zenodo.1157048)
+[![DOI](https://zenodo.org/badge/112313795.svg)](https://zenodo.org/badge/latestdoi/112313795)
 ![CircleCI status](https://circleci.com/gh/cbcrg/celegans-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
 
