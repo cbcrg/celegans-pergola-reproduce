@@ -166,9 +166,10 @@ process feature_to_pergola {
   	output: 
   	set '*.no_na.bed', body_part, name_file into bed_loc_no_nas
   	//set '*.no_na.bed', body_part, name_file, 'chrom.sizes' into bed_cov
+  	set 'chrom.bw.sizes' into chrom_sizes
   	set '*.zeros.bedGraph', body_part, name_file into bedGraph_loc_no_nas
   	set '*.no_tr.bedGraph', body_part, name_file into bedGraph_heatmap
-  	
+  	set '*.toBigWig.bedGraph', body_part, name_file into bedGraph_deeptools
   	set name_file, body_part, '*.no_tr.bed', exp_group into bed_loc_no_track_line, bed_loc_no_track_line_cp
   	set name_file, body_part, '*.no_tr.bedGraph', exp_group into bedGraph_loc_no_track_line
   	
@@ -195,7 +196,14 @@ process feature_to_pergola {
   	cat bedGraph_file.tmp | sed 's/-10000/0/g' > ${name_file}".zeros.bedGraph"
   	cat bedGraph_file.tmp > ${name_file}".no_na.bedGraph"  
   	cat ${name_file}".no_na.bedGraph" | grep -v "track name" > ${name_file}".no_tr.bedGraph" || echo -e echo -e "chr1\t0\t100\t1" > ${name_file}".no_tr.bedGraph"
-  	rm bedGraph_file.tmp 
+  	rm bedGraph_file.tmp
+  	# cat ${name_file}".zeros.bedGraph" | sed 's/-//g' > ${name_file}".pos.bedGraph"
+  	cat ${name_file}".zeros.bedGraph" | sed 's/-//g' > ${name_file}".toBigWig.bedGraph"
+  	# sort  -k4,4rn  ${name_file}".pos.bedGraph" > ${name_file}".ordered.bedGraph"
+  	# awk 'FNR==NR{a[NR]=\$4;next}{\$4=a[FNR]}1' ${name_file}".ordered.bedGraph" ${name_file}".zeros.bedGraph" | head -29001 > ${name_file}".toBigWig.bedGraph"
+
+  	# cat chrom.sizes | sed 's/29002/29000/g' > chrom.bw.sizes
+  	cat chrom.sizes > chrom.bw.sizes
   	"""
 }
 
@@ -375,7 +383,7 @@ str2_bed_paused = bed_tagged_for_str2_p
     .filter { it[3] == "paused" }
     .map { it[0] }
 
-bedGraph_heatmap.into { bedGraph_heatmap_intro; bedGraph_heatmap_str1; bedGraph_heatmap_str2 }
+bedGraph_heatmap.into { bedGraph_heatmap_str1; bedGraph_heatmap_str2 }
 
 str1_bedGraph_heatmap = bedGraph_heatmap_str1
                         		.filter { it[2] =~ /^unc-16.*/  }
@@ -384,6 +392,190 @@ str1_bedGraph_heatmap = bedGraph_heatmap_str1
 str2_bedGraph_heatmap = bedGraph_heatmap_str2
               							.filter { it[2] =~ /^N2.*/  }
               							.map { it[0] }
+
+/*
+ * For each pair get the correlation using bigwig
+ */
+process bedgraph_to_bigWig {
+    publishDir = [path: "results${tag_res}/bigWig", mode: 'copy']
+
+  	input:
+  	set file (bedgr_file), body_part, name from bedGraph_deeptools
+    file chrom_sizes from chrom_sizes.first()
+
+    output:
+    //file '*.bw' into bigWig_to_summarize
+    set  '*.bw', name into bigWig_N2, bigWig_unc16
+
+    """
+  	head -n -2 ${bedgr_file} > ${name}.trimmed
+
+    bedGraphToBigWig ${name}.trimmed ${chrom_sizes} ${name}".bw"
+    """
+}
+
+////////////////////////////////////////
+
+bigWig_N2 = bigWig_N2
+                        .filter { it[1] =~ /^N2*/  }
+                        .map { it[0] }
+
+bigWig_unc16 = bigWig_unc16
+                            .filter { it[1] =~ /^unc*/  }
+                            .map { it[0] }
+
+bigWig_N2.into { bigWig_to_matrix_N2; bigWig_to_summarize_N2 }
+bigWig_unc16.into { bigWig_to_matrix_unc16; bigWig_to_summarize_unc16 }
+
+process deeptools_summarize {
+
+    publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
+
+  	input:
+  	//file (bedGraph_summarize_list) from bigWig_to_summarize.toSortedList { it.name }
+    file bigwig_file_N2 from bigWig_to_summarize_N2.toSortedList()
+    file bigwig_file_unc16 from bigWig_to_summarize_unc16.toSortedList()
+
+  	output:
+    set file ('results.npz') into results_to_pca
+    set file ('*.tab') into tbl_summary
+
+  	"""
+  	a=1
+
+    for file in ${bigwig_file_N2}
+    do
+        mv \${file} "N2_"\${a}".bigWig"
+        let a=a+1
+    done
+
+    a=1
+
+    for file in ${bigwig_file_unc16}
+    do
+        mv \${file} "unc16_"\${a}".bigWig"
+        let a=a+1
+    done
+
+  	multiBigwigSummary bins -b *.bigWig \
+  	                        -o results.npz -bs 483 \
+  	                        --outRawCounts scores_per_bin.tab
+  	"""
+}
+
+image_format_deeptools = 'png'
+
+process deeptools_pca {
+    publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
+
+    input:
+    file ('results.npz') from results_to_pca
+
+    output:
+    file "PCA_speed.${image_format_deeptools}" into pca_plot
+
+    """
+    plotPCA -in results.npz \
+            -o PCA_speed".${image_format_deeptools}" \
+            --colors red red red red red red red red red red red red red red red red red red red red \
+                     red red red red red red red red red red red red red red red red red red red red \
+                     blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue \
+                     blue blue blue blue
+    """
+}
+
+process correlation_deeptools {
+    publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
+
+    input:
+    file ('results.npz') from results_to_pca
+
+    output:
+    file "correlation_speed.${image_format_deeptools}" into correlation_heatmap_plot
+
+    """
+    plotCorrelation -in results.npz \
+                    -o correlation_speed".${image_format_deeptools}" \
+                    --skipZeros \
+                    --corMethod spearman \
+                    --whatToPlot heatmap \
+                    --colorMap RdYlBu \
+                    --plotNumbers \
+                    --outFileCorMatrix SpearmanCorr_readCounts.tab
+    """
+}
+
+/*
+ * Creates deeptools matrix that will be used by plotHeatmap
+ */
+// Parametrization for production
+before_start_length = 1000
+body_length = 10000
+after_end_length = 1000
+
+process deep_tools_matrix {
+
+    input:
+    file bigwig_file_N2 from bigWig_to_matrix_N2.toSortedList()
+    file bigwig_file_unc16 from bigWig_to_matrix_unc16.toSortedList()
+
+    output:
+    file 'matrix.mat.gz' into matrix_heatmap
+
+    """
+    echo -e  "chr1\t1000\t11000\t.\t1000" > phases.bed
+
+    a=1
+
+    for file in ${bigwig_file_N2}
+    do
+        mv \${file} "N2_"\${a}".bigWig"
+        let a=a+1
+    done
+
+    a=1
+
+    for file in ${bigwig_file_unc16}
+    do
+        mv \${file} "unc16_"\${a}".bigWig"
+        let a=a+1
+    done
+
+    computeMatrix scale-regions -S *.bigWig \
+                                -R phases.bed \
+                                --beforeRegionStartLength ${before_start_length} \
+                                --regionBodyLength ${body_length} \
+                                --afterRegionStartLength ${after_end_length} \
+                                --skipZeros -out matrix.mat.gz
+    """
+}
+
+process deep_tools_heatmap {
+
+    publishDir = [path: "results${tag_res}/deeptools", mode: 'copy', overwrite: 'true']
+
+    input:
+    file matrix from matrix_heatmap
+
+    output:
+    file "*.${image_format_deeptools}" into heatmap_fig
+
+    """
+    plotHeatmap -m ${matrix} \
+                -out heatmap_actogram_like".${image_format_deeptools}" \
+                --startLabel APS \
+                --endLabel RPS \
+                --xAxisLabel "a" \
+                --yAxisLabel "b" \
+                --sortRegions ascend \
+                --plotFileFormat ${image_format_deeptools} #\
+                # --dpi 400
+
+    """
+}
+
+
+////////////////////////////////////////
 
 /*
  * Plotting heat map and density plots
