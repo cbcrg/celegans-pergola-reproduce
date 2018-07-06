@@ -71,6 +71,19 @@ if( !file(params.mappings_bed).exists() ) exit 1, "Missing bed mapping file: ${p
 if( !map_motion.exists() ) exit 1, "Missing motion mapping file: ${map_motion}" 
 
 /*
+ * Read image format
+ */
+image_format = "${params.image_format}"
+
+if( image_format.matches('tiff') ) {
+    println "WARNING: Deeptools figures will be created in png format as tiff format is not available.\n"
+    image_format_deeptools = 'png'
+}
+else {
+    image_format_deeptools = image_format
+}
+
+/*
  * Create a channel for strain 1 worm trackings 
  */
 Channel
@@ -191,19 +204,19 @@ process feature_to_pergola {
   	cat ${name_file}".no_na.bed" | grep -v "track name" > ${name_file}.no_tr.bed || echo -e "chr1\t0\t100\t.\t-10000\t+\t0\t100\t135,206,250" > ${name_file}".no_tr.bed"
   	rm bed_file.tmp
   	
-  	# delete values that were assigned as -10000 to skip na of the original file
-  	# to avoid problems if a file got a feature with a feature always set to NA I add this code (short files for 
+  	# delete values that were assigned as -10000 to skip na of the original file #del
+  	# to avoid problems if a file got a feature with a feature always set to NA I add this code (short files for #del
   	cat bedGraph_file.tmp | sed 's/-10000/0/g' > ${name_file}".zeros.bedGraph"
   	cat bedGraph_file.tmp > ${name_file}".no_na.bedGraph"  
   	cat ${name_file}".no_na.bedGraph" | grep -v "track name" > ${name_file}".no_tr.bedGraph" || echo -e echo -e "chr1\t0\t100\t1" > ${name_file}".no_tr.bedGraph"
   	rm bedGraph_file.tmp
-  	# cat ${name_file}".zeros.bedGraph" | sed 's/-//g' > ${name_file}".pos.bedGraph"
-  	cat ${name_file}".zeros.bedGraph" | sed 's/-//g' > ${name_file}".toBigWig.bedGraph"
-  	# sort  -k4,4rn  ${name_file}".pos.bedGraph" > ${name_file}".ordered.bedGraph"
-  	# awk 'FNR==NR{a[NR]=\$4;next}{\$4=a[FNR]}1' ${name_file}".ordered.bedGraph" ${name_file}".zeros.bedGraph" | head -29001 > ${name_file}".toBigWig.bedGraph"
+  	# cat ${name_file}".zeros.bedGraph" | sed 's/-//g' > ${name_file}".pos.bedGraph" #del
+  	cat ${name_file}".zeros.bedGraph" | sed 's/-//g' | head -17401 > ${name_file}".toBigWig.bedGraph"
+  	# sort  -k4,4rn  ${name_file}".pos.bedGraph" > ${name_file}".ordered.bedGraph" #del
+  	# awk 'FNR==NR{a[NR]=\$4;next}{\$4=a[FNR]}1' ${name_file}".ordered.bedGraph" ${name_file}".zeros.bedGraph" | head -29001 > ${name_file}".toBigWig.bedGraph" #//del
 
-  	# cat chrom.sizes | sed 's/29002/29000/g' > chrom.bw.sizes
-  	cat chrom.sizes > chrom.bw.sizes
+  	cat chrom.sizes | sed 's/29002/17400/g' > chrom.bw.sizes
+  	# cat chrom.sizes > chrom.bw.sizes #del
   	"""
 }
 
@@ -394,7 +407,7 @@ str2_bedGraph_heatmap = bedGraph_heatmap_str2
               							.map { it[0] }
 
 /*
- * For each pair get the correlation using bigwig
+ * Convert bedGraph to bigWig files (deeptools input data)
  */
 process bedgraph_to_bigWig {
     publishDir = [path: "results${tag_res}/bigWig", mode: 'copy']
@@ -406,6 +419,7 @@ process bedgraph_to_bigWig {
     output:
     //file '*.bw' into bigWig_to_summarize
     set  '*.bw', name into bigWig_N2, bigWig_unc16
+
 
     """
   	head -n -2 ${bedgr_file} > ${name}.trimmed
@@ -427,18 +441,21 @@ bigWig_unc16 = bigWig_unc16
 bigWig_N2.into { bigWig_to_matrix_N2; bigWig_to_summarize_N2 }
 bigWig_unc16.into { bigWig_to_matrix_unc16; bigWig_to_summarize_unc16 }
 
+/*
+ * Summarize bigwig files corresponding to each of the worm trajectories in bins using Deeptools multiBigwigSummary
+ */
 process deeptools_summarize {
 
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
 
   	input:
   	//file (bedGraph_summarize_list) from bigWig_to_summarize.toSortedList { it.name }
-    file bigwig_file_N2 from bigWig_to_summarize_N2.toSortedList()
-    file bigwig_file_unc16 from bigWig_to_summarize_unc16.toSortedList()
+    file bigwig_file_N2 from bigWig_to_summarize_N2.toSortedList{ it.name }
+    file bigwig_file_unc16 from bigWig_to_summarize_unc16.toSortedList{ it.name }
 
   	output:
-    set file ('results.npz') into results_to_pca
-    set file ('*.tab') into tbl_summary
+    file ('results.npz') into results_to_pca
+    file ('*.tab') into tbl_summary
 
   	"""
   	a=1
@@ -458,13 +475,14 @@ process deeptools_summarize {
     done
 
   	multiBigwigSummary bins -b *.bigWig \
-  	                        -o results.npz -bs 483 \
+  	                        -o results.npz -bs 2900 \
   	                        --outRawCounts scores_per_bin.tab
   	"""
 }
 
-image_format_deeptools = 'png'
-
+/*
+ * Deeptools pcaPlot creates a PCA from the binned trajectories output of multiBigwigSummary
+ */
 process deeptools_pca {
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
 
@@ -477,13 +495,17 @@ process deeptools_pca {
     """
     plotPCA -in results.npz \
             -o PCA_speed".${image_format_deeptools}" \
+            --transpose \
+            --plotHeight 20 --plotWidth 28 \
             --colors red red red red red red red red red red red red red red red red red red red red \
                      red red red red red red red red red red red red red red red red red red red red \
                      blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue \
                      blue blue blue blue
+
     """
 }
 
+/*
 process correlation_deeptools {
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
 
@@ -504,11 +526,15 @@ process correlation_deeptools {
                     --outFileCorMatrix SpearmanCorr_readCounts.tab
     """
 }
+*/
 
 /*
  * Creates deeptools matrix that will be used by plotHeatmap
  */
+
 // Parametrization for production
+// del
+/*
 before_start_length = 1000
 body_length = 10000
 after_end_length = 1000
@@ -516,8 +542,8 @@ after_end_length = 1000
 process deep_tools_matrix {
 
     input:
-    file bigwig_file_N2 from bigWig_to_matrix_N2.toSortedList()
-    file bigwig_file_unc16 from bigWig_to_matrix_unc16.toSortedList()
+    file bigwig_file_N2 from bigWig_to_matrix_N2.toSortedList{ it.name }
+    file bigwig_file_unc16 from bigWig_to_matrix_unc16.toSortedList{ it.name }
 
     output:
     file 'matrix.mat.gz' into matrix_heatmap
@@ -549,7 +575,10 @@ process deep_tools_matrix {
                                 --skipZeros -out matrix.mat.gz
     """
 }
+*/
 
+//del
+/*
 process deep_tools_heatmap {
 
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy', overwrite: 'true']
@@ -573,7 +602,7 @@ process deep_tools_heatmap {
 
     """
 }
-
+*/
 
 ////////////////////////////////////////
 
