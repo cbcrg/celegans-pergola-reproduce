@@ -30,7 +30,7 @@
 
 params.strain1_trackings = "$baseDir/small_data/unc_16/*.hdf5"
 params.strain2_trackings = "$baseDir/small_data/N2/*.hdf5"
-params.mappings_speed    = "$baseDir/small_data/mappings/worms_speed2p.txt"
+params.mappings_speed    = "$baseDir/small_datrea/mappings/worms_speed2p.txt"
 params.mappings_bed      = "$baseDir/small_data/mappings/bed2pergola.txt"
 params.mappings_motion   = "$baseDir/small_data/mappings/worms_motion2p.txt"
 params.output            = "results/"
@@ -449,7 +449,7 @@ process deeptools_summarize {
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
 
   	input:
-  	//file (bedGraph_summarize_list) from bigWig_to_summarize.toSortedList { it.name }
+  	//file (bedGraph_summarize_list) from bigWig_to_summarize.toSortedList { it.name } //del
     file bigwig_file_N2 from bigWig_to_summarize_N2.toSortedList{ it.name }
     file bigwig_file_unc16 from bigWig_to_summarize_unc16.toSortedList{ it.name }
 
@@ -496,15 +496,19 @@ process deeptools_pca {
     plotPCA -in results.npz \
             -o PCA_speed".${image_format_deeptools}" \
             --transpose \
-            --plotHeight 20 --plotWidth 28 \
-            --colors red red red red red red red red red red red red red red red red red red red red \
-                     red red red red red red red red red red red red red red red red red red red red \
-                     blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue blue \
-                     blue blue blue blue
+            --plotHeight 10 --plotWidth 7 \
+            --colors "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" \
+                     "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" \
+                     "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" "#DFB786" \
+                     "#DFB786" "#DFB786" "#DFB786" "#DFB786" \
+                     "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" \
+                     "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" "#A7A6A6" \
+                     "#A7A6A6"
 
     """
 }
-
+//--plotHeight 20 --plotWidth 28 \
+//--plotHeight 14 --plotWidth 10 \
 /*
 process correlation_deeptools {
     publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
