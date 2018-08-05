@@ -33,14 +33,14 @@ If you have not install yet [docker](https://www.docker.com/) and [nextflow](htt
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
 
 ```bash
-docker pull pergola/pergola@sha256:0737f3e70dde73d0272a0be37e05a36a6fed390c8820c5d2834076b711ab707f
+docker pull pergola/pergola-reproduce@sha256:93e0029317322919dd531bcb7382eb1b252c34968b4aab3cc737dc2f9a101a1e
 ```
 
 ## Run nextflow pipeline
 Once data is downloaded, it is possible to reproduce all the paper results using this command:
 
 ```bash
-NXF_VER=0.27.0 nextflow run celegans-pergola-reproduce.nf \
+NXF_VER=0.30.2 nextflow run celegans-pergola-reproduce.nf \
     --strain1_trackings 'data/unc_16/*.hdf5' \
     --strain2_trackings 'data/N2/*.hdf5' \
     --mappings_speed 'data/mappings/worms_speed2p.txt' \
