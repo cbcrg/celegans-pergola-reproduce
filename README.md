@@ -57,7 +57,7 @@ The nextflow pipeline produces a results folder containing:
 * A figure created using [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) depicting in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
 * A figure created using [Sushi](https://bioconductor.org/packages/release/bioc/html/Sushi.html) rendering in a heatmap the mid body speed of *unc-16* and *N2* *C.elegans* strains.
 * A folder containing all the necessary files to compare mid body speed of the two strains in a heatmap using [IGV](http://software.broadinstitute.org/software/igv/). Data is separated in folders corresponding to each mouse group.
-* A PCA plot of mid body speed trajectories of individuals worm produced using [Deeptools](https://deeptools.readthedocs.io/en/develop/#), clustering together individuals from each strain.
+* A PCA plot of mid body speed trajectories of individuals worm produced using [deepTools](https://deeptools.readthedocs.io/en/develop/#), clustering together individuals from each strain.
  
 See [below](#IGV-visualization) for a detailed explanation of how to load the data on IGV.
 
