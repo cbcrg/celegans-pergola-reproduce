@@ -403,7 +403,7 @@ str2_bedGraph_heatmap = bedGraph_heatmap_str2
  * Convert bedGraph to bigWig files (deeptools input data)
  */
 process bedgraph_to_bigWig {
-    publishDir = [path: "results${tag_res}/bigWig", mode: 'copy']
+    // publishDir = [path: "results${tag_res}/bigWig", mode: 'copy']
 
   	input:
   	set file (bedgr_file), body_part, name from bedGraph_deeptools
