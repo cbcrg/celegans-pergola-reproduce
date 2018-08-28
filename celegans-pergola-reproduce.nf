@@ -30,7 +30,7 @@
 
 params.strain1_trackings = "$baseDir/small_data/unc_16/*.hdf5"
 params.strain2_trackings = "$baseDir/small_data/N2/*.hdf5"
-params.mappings_speed    = "$baseDir/small_datrea/mappings/worms_speed2p.txt"
+params.mappings_speed    = "$baseDir/small_data/mappings/worms_speed2p.txt"
 params.mappings_bed      = "$baseDir/small_data/mappings/bed2pergola.txt"
 params.mappings_motion   = "$baseDir/small_data/mappings/worms_motion2p.txt"
 params.output            = "results/"
