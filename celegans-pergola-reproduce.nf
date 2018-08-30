@@ -437,7 +437,7 @@ bigWig_unc16.into { bigWig_to_matrix_unc16; bigWig_to_summarize_unc16 }
  */
 process deeptools_summarize {
 
-    publishDir = [path: "results${tag_res}/deeptools", mode: 'copy']
+    publishDir = [path: "results${tag_res}/pca_deeptools", mode: 'copy']
 
   	input:
     file bigwig_file_N2 from bigWig_to_summarize_N2.toSortedList{ it.name }
